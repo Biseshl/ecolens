@@ -1,16 +1,16 @@
 // Import all product images
-import bambooToothbrush from '@/assets/bamboo-toothbrush.jpg';
-import cottonToteBag from '@/assets/cotton-tote-bag.jpg';
-import glassStorageSet from '@/assets/glass-storage-set.jpg';
-import organicQuinoa from '@/assets/organic-quinoa.jpg';
-import shampooBar from '@/assets/shampoo-bar.jpg';
-import woolSweater from '@/assets/wool-sweater.jpg';
-import beeswaxWraps from '@/assets/beeswax-wraps.jpg';
-import coffeeBeans from '@/assets/coffee-beans.jpg';
-import coconutDeodorant from '@/assets/coconut-deodorant.jpg';
-import hempSneakers from '@/assets/hemp-sneakers.jpg';
-import solarCharger from '@/assets/solar-charger.jpg';
-import organicPasta from '@/assets/organic-pasta.jpg';
+import bambooToothbrush from '@/assets/bamboo-toothbrush.webp';
+import cottonToteBag from '@/assets/cotton-tote-bag.webp';
+import glassStorageSet from '@/assets/glass-storage-set.webp';
+import organicQuinoa from '@/assets/organic-quinoa.webp';
+import shampooBar from '@/assets/shampoo-bar.webp';
+import woolSweater from '@/assets/wool-sweater.webp';
+import beeswaxWraps from '@/assets/beeswax-wraps.webp';
+import coffeeBeans from '@/assets/coffee-beans.webp';
+import coconutDeodorant from '@/assets/coconut-deodorant.webp';
+import hempSneakers from '@/assets/hemp-sneakers.webp';
+import solarCharger from '@/assets/solar-charger.webp';
+import organicPasta from '@/assets/organic-pasta.webp';
 
 export interface Product {
   id: string;

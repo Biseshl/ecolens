@@ -56,8 +56,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <div className="relative aspect-square overflow-hidden">
         <img
           src={product.image}
-          alt={product.name}
+          alt={`${product.brand} ${product.name}`}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          width={400}
+          height={300}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNzUgMTIwSDIyNVYxODBIMTc1VjEyMFoiIGZpbGw9IiM5Q0E0QUMiLz4KPHN2Zz4K";
+            target.alt = "Product image placeholder";
+          }}
         />
         <div className="absolute top-2 right-2 flex gap-2">
           {product.isVegan && <Badge variant="secondary" className="text-xs">Vegan</Badge>}

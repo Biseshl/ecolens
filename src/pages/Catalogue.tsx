@@ -13,7 +13,7 @@ const Catalogue = () => {
   const [isVegan, setIsVegan] = useState(false);
   const [isPlasticFree, setIsPlasticFree] = useState(false);
   const [isLocal, setIsLocal] = useState(false);
-  const [maxPrice, setMaxPrice] = useState(100);
+  const [maxPrice, setMaxPrice] = useState(200);
 
   const filteredProducts = useMemo(() => {
     return mockProducts.filter(product => {
@@ -36,7 +36,7 @@ const Catalogue = () => {
     setIsVegan(false);
     setIsPlasticFree(false);
     setIsLocal(false);
-    setMaxPrice(100);
+    setMaxPrice(200);
   };
 
   return (
@@ -134,11 +134,11 @@ const Catalogue = () => {
 
             {/* Price Filter */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Max Price: ${maxPrice}</label>
+              <label className="text-sm font-medium">Max price: ${maxPrice}</label>
               <Slider
                 value={[maxPrice]}
                 onValueChange={(value) => setMaxPrice(value[0])}
-                max={100}
+                max={200}
                 min={0}
                 step={5}
                 className="w-full"
@@ -153,6 +153,20 @@ const Catalogue = () => {
             <p className="text-muted-foreground">
               {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
             </p>
+            {/* Clear Filters Chip */}
+            {(searchTerm || selectedCategory || isVegan || isPlasticFree || isLocal || maxPrice < 200) && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full text-sm">
+                <span>Filters active</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="h-auto p-1 text-xs hover:bg-primary/20"
+                >
+                  Clear filters
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

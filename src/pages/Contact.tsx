@@ -16,10 +16,7 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Demo only – no backend",
-      description: "This form is for demonstration purposes only. No message was actually sent.",
-    });
+    alert("Demo only – no backend.");
     setFormData({ name: '', email: '', message: '' });
   };
 
@@ -139,11 +136,11 @@ const Contact = () => {
               <CardContent>
                 <div className="aspect-video rounded-lg overflow-hidden bg-muted">
                   <iframe
-                    src="https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_BcFUmGFVgMA&q=refill+store+melbourne"
+                    src="https://www.google.com/maps/embed/v1/search?q=refill+store+melbourne"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
-                    allowFullScreen={false}
+                    allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     title="Refill stores in Melbourne"

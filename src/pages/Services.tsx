@@ -8,7 +8,7 @@ const Services = () => {
   const services = [
     {
       icon: Handshake,
-      title: 'Affiliate Partnerships',
+      title: 'Affiliate partnerships',
       description: 'Join our network of sustainable retailers and earn commissions on every sale through our platform.',
       features: [
         'Competitive commission rates',
@@ -20,7 +20,7 @@ const Services = () => {
     },
     {
       icon: Star,
-      title: 'Sponsored Listings & Featured Placements',
+      title: 'Sponsored listings & featured placements',
       description: 'Increase your product visibility with premium placement in search results and category pages.',
       features: [
         'Top search result placement',
@@ -32,7 +32,7 @@ const Services = () => {
     },
     {
       icon: Crown,
-      title: 'Premium Ad-Free Membership',
+      title: 'Premium ad-free membership',
       description: 'Enhance your shopping experience with our premium membership program for conscious consumers.',
       features: [
         'Ad-free browsing experience',
@@ -44,7 +44,7 @@ const Services = () => {
     },
     {
       icon: Database,
-      title: 'Impact-Score API Licensing',
+      title: 'Impact-score API licensing (beta)',
       description: 'Integrate our comprehensive sustainability scoring system into your own platform or application.',
       features: [
         'Real-time impact scores',

@@ -53,7 +53,7 @@ const Product = () => {
     }
   };
 
-  const handleBuyClick = (retailer: string, url: string) => {
+  const handleBuyClick = (url: string) => {
     alert("We may earn a small commission when you buy via our links—at no extra cost to you.");
     window.open(url, '_blank');
   };
@@ -75,8 +75,15 @@ const Product = () => {
             <div className="aspect-square rounded-lg overflow-hidden bg-muted">
               <img
                 src={product.image}
-                alt={product.name}
+                alt={`${product.brand} ${product.name}`}
                 className="w-full h-full object-cover"
+                width={800}
+                height={600}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zNzUgMjcwSDQyNVYzMzBIMzc1VjI3MFoiIGZpbGw9IiM5Q0E0QUMiLz4KPHN2Zz4K";
+                  target.alt = "Product image placeholder";
+                }}
               />
             </div>
           </div>
@@ -129,7 +136,7 @@ const Product = () => {
                       <p className="text-2xl font-bold">${option.price}</p>
                     </div>
                     <Button 
-                      onClick={() => handleBuyClick(option.retailer, option.url)}
+                      onClick={() => handleBuyClick(option.url)}
                       className="ml-4"
                     >
                       Buy Now
