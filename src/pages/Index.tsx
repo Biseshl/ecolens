@@ -29,13 +29,19 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/5 via-leaf-green/5 to-accent/5 py-24">
+      <section 
+        className="relative py-24 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/src/assets/hero-background.jpg'), linear-gradient(135deg, hsl(120 60% 25% / 0.9), hsl(120 70% 40% / 0.8))`,
+          backgroundBlendMode: 'overlay'
+        }}
+      >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-leaf-green bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
               All your eco-options — vetted, verified, visible.
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow">
               Discover sustainable products that align with your values. Every choice makes a difference.
             </p>
             

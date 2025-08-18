@@ -40,7 +40,10 @@ const Catalogue = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen"
+         style={{
+           background: 'linear-gradient(135deg, hsl(var(--background)) 0%, hsl(120 15% 95%) 50%, hsl(var(--muted)) 100%)'
+         }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Product Catalogue</h1>
@@ -50,7 +53,7 @@ const Catalogue = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-card border rounded-lg p-6 mb-8">
+        <div className="bg-card/80 backdrop-blur-sm border rounded-lg p-6 mb-8 shadow-card">
           <div className="flex items-center gap-2 mb-4">
             <Filter className="h-5 w-5" />
             <h2 className="text-lg font-semibold">Filters</h2>
