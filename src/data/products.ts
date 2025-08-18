@@ -1,3 +1,17 @@
+// Import all product images
+import bambooToothbrush from '@/assets/bamboo-toothbrush.jpg';
+import cottonToteBag from '@/assets/cotton-tote-bag.jpg';
+import glassStorageSet from '@/assets/glass-storage-set.jpg';
+import organicQuinoa from '@/assets/organic-quinoa.jpg';
+import shampooBar from '@/assets/shampoo-bar.jpg';
+import woolSweater from '@/assets/wool-sweater.jpg';
+import beeswaxWraps from '@/assets/beeswax-wraps.jpg';
+import coffeeBeans from '@/assets/coffee-beans.jpg';
+import coconutDeodorant from '@/assets/coconut-deodorant.jpg';
+import hempSneakers from '@/assets/hemp-sneakers.jpg';
+import solarCharger from '@/assets/solar-charger.jpg';
+import organicPasta from '@/assets/organic-pasta.jpg';
+
 export interface Product {
   id: string;
   name: string;
@@ -36,7 +50,7 @@ export const mockProducts: Product[] = [
     brand: "EcoSmile",
     category: "Personal Care",
     price: 12.99,
-    image: "/src/assets/bamboo-toothbrush.jpg",
+    image: bambooToothbrush,
     description: "Biodegradable bamboo toothbrushes with soft bristles",
     isVegan: true,
     isPlasticFree: true,
@@ -57,7 +71,7 @@ export const mockProducts: Product[] = [
     brand: "FairTrade Co",
     category: "Fashion",
     price: 19.99,
-    image: "/src/assets/cotton-tote-bag.jpg",
+    image: cottonToteBag,
     description: "Durable organic cotton tote bag with reinforced handles",
     isVegan: true,
     isPlasticFree: true,
@@ -78,7 +92,7 @@ export const mockProducts: Product[] = [
     brand: "ClearChoice",
     category: "Home",
     price: 45.99,
-    image: "/src/assets/glass-storage-set.jpg",
+    image: glassStorageSet,
     description: "BPA-free glass containers with bamboo lids",
     isVegan: true,
     isPlasticFree: false,
@@ -99,7 +113,7 @@ export const mockProducts: Product[] = [
     brand: "NatureFarm",
     category: "Groceries",
     price: 8.99,
-    image: "/src/assets/organic-quinoa.jpg",
+    image: organicQuinoa,
     description: "Certified organic quinoa, locally sourced",
     isVegan: true,
     isPlasticFree: true,
@@ -120,7 +134,7 @@ export const mockProducts: Product[] = [
     brand: "Pure Naturals",
     category: "Personal Care",
     price: 15.99,
-    image: "/src/assets/shampoo-bar.jpg",
+    image: shampooBar,
     description: "Zero-waste shampoo bar with organic lavender",
     isVegan: true,
     isPlasticFree: true,
@@ -141,7 +155,7 @@ export const mockProducts: Product[] = [
     brand: "ReNew Fashion",
     category: "Fashion",
     price: 89.99,
-    image: "/src/assets/wool-sweater.jpg",
+    image: woolSweater,
     description: "Cozy sweater made from 100% recycled wool",
     isVegan: false,
     isPlasticFree: true,
@@ -162,7 +176,7 @@ export const mockProducts: Product[] = [
     brand: "BeeGood",
     category: "Home",
     price: 24.99,
-    image: "/src/assets/beeswax-wraps.jpg",
+    image: beeswaxWraps,
     description: "Reusable beeswax wraps, set of 3 sizes",
     isVegan: false,
     isPlasticFree: true,
@@ -183,7 +197,7 @@ export const mockProducts: Product[] = [
     brand: "EthicalBrew",
     category: "Groceries",
     price: 16.99,
-    image: "/src/assets/coffee-beans.jpg",
+    image: coffeeBeans,
     description: "Single-origin fair trade coffee beans",
     isVegan: true,
     isPlasticFree: false,
@@ -204,7 +218,7 @@ export const mockProducts: Product[] = [
     brand: "FreshStart",
     category: "Personal Care",
     price: 11.99,
-    image: "/src/assets/coconut-deodorant.jpg",
+    image: coconutDeodorant,
     description: "Natural deodorant with coconut oil and essential oils",
     isVegan: true,
     isPlasticFree: false,
@@ -225,7 +239,7 @@ export const mockProducts: Product[] = [
     brand: "WalkGreen",
     category: "Fashion",
     price: 79.99,
-    image: "/src/assets/hemp-sneakers.jpg",
+    image: hempSneakers,
     description: "Sustainable sneakers made from hemp canvas",
     isVegan: true,
     isPlasticFree: true,
@@ -246,7 +260,7 @@ export const mockProducts: Product[] = [
     brand: "SunPower",
     category: "Home",
     price: 34.99,
-    image: "/src/assets/solar-charger.jpg",
+    image: solarCharger,
     description: "Portable solar panel phone charger",
     isVegan: true,
     isPlasticFree: false,
@@ -267,7 +281,7 @@ export const mockProducts: Product[] = [
     brand: "GreenHarvest",
     category: "Groceries",
     price: 4.99,
-    image: "/src/assets/organic-pasta.jpg",
+    image: organicPasta,
     description: "Whole wheat organic pasta made locally",
     isVegan: true,
     isPlasticFree: true,
