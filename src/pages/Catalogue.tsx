@@ -46,7 +46,8 @@ const Catalogue = () => {
          }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">Product Catalogue</h1>
+          <h1 className="text-3xl font-bold mb-2">Product Catalogue</h1>
+          <p className="text-sm text-primary/80 font-medium mb-2">Your eco-friendly product finder</p>
           <p className="text-muted-foreground">
             Discover sustainable products that make a difference
           </p>
