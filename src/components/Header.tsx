@@ -29,7 +29,10 @@ const Header = () => {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <Leaf className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold text-foreground">EcoLens</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-foreground">EcoLens</span>
+                <span className="text-xs text-primary/70 -mt-1">Your eco-friendly product finder</span>
+              </div>
             </Link>
           </div>
 
