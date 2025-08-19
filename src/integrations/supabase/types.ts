@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      leaf_point_transactions: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string | null
+          id: string
+          item_id: string | null
+          points_earned: number
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_id?: string | null
+          points_earned?: number
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          item_id?: string | null
+          points_earned?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

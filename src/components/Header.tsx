@@ -100,6 +100,12 @@ const Header = () => {
                   <DropdownMenuItem className="text-sm">
                     {user.email}
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center">
+                      <User className="h-4 w-4 mr-2" />
+                      Profile & History
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
@@ -152,6 +158,16 @@ const Header = () => {
                 {user ? (
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full mb-2"
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        Profile & History
+                      </Button>
+                    </Link>
                     <Button 
                       variant="outline" 
                       size="sm" 
