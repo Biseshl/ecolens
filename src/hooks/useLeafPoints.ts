@@ -234,7 +234,12 @@ export const useLeafPoints = () => {
   };
 
   const saveItem = (itemId: string) => {
-    console.log('Attempting to save item:', itemId, 'Already saved?', savedItems.has(itemId));
+    console.log('=== SAVE ITEM DEBUG ===');
+    console.log('User authenticated?', !!user);
+    console.log('User ID:', user?.id);
+    console.log('Item ID:', itemId);
+    console.log('Already saved?', savedItems.has(itemId));
+    console.log('Current savedItems:', Array.from(savedItems));
     
     if (!savedItems.has(itemId)) {
       const newSavedItems = new Set(savedItems);
@@ -242,7 +247,7 @@ export const useLeafPoints = () => {
       setSavedItems(newSavedItems);
       localStorage.setItem(SAVED_ITEMS_KEY, JSON.stringify(Array.from(newSavedItems)));
       
-      console.log('Item saved successfully, adding leaf point');
+      console.log('Item saved to localStorage, calling addLeafPoint');
       addLeafPoint('item_saved', itemId, 'Saved item to wishlist');
       return true;
     } else {
