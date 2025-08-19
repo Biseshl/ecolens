@@ -102,7 +102,18 @@ export default {
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'sway': 'sway 8s ease-in-out infinite',
+				'pulse-glow': 'pulse-glow 4s ease-in-out infinite',
+				'drift': 'drift 12s ease-in-out infinite',
+				'float-up': 'float-up 6s ease-in-out infinite',
+				'spiral': 'spiral 15s linear infinite',
+				'rotate-slow': 'rotate-slow 20s linear infinite',
+				'bounce-subtle': 'bounce-subtle 3s ease-in-out infinite',
+				'swing': 'swing 4s ease-in-out infinite',
+				'wiggle': 'wiggle 2s ease-in-out infinite',
+				'float-particles': 'float-particles 10s ease-in-out infinite',
+				'shimmer': 'shimmer 6s ease-in-out infinite'
 			}
 		}
 	},

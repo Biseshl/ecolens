@@ -13,19 +13,28 @@ const Index = () => {
     window.location.href = `/catalogue?search=${encodeURIComponent(searchTerm)}`;
   };
 
-  // Eco doodle elements for background
-  const ecoDoodles = [
-    { Icon: Leaf, position: 'top-16 left-[10%]', delay: '0s', size: 'h-8 w-8' },
-    { Icon: Recycle, position: 'top-32 right-[15%]', delay: '2s', size: 'h-6 w-6' },
-    { Icon: TreePine, position: 'top-48 left-[20%]', delay: '4s', size: 'h-10 w-10' },
-    { Icon: Sun, position: 'top-20 right-[30%]', delay: '1s', size: 'h-7 w-7' },
-    { Icon: Wind, position: 'top-40 left-[5%]', delay: '3s', size: 'h-6 w-6' },
-    { Icon: Droplets, position: 'top-60 right-[10%]', delay: '5s', size: 'h-5 w-5' },
-    { Icon: Coffee, position: 'top-24 left-[25%]', delay: '2.5s', size: 'h-6 w-6' },
-    { Icon: Utensils, position: 'top-52 right-[25%]', delay: '1.5s', size: 'h-7 w-7' },
-    { Icon: ShoppingBag, position: 'top-36 left-[15%]', delay: '4.5s', size: 'h-6 w-6' },
-    { Icon: Leaf, position: 'top-64 left-[30%]', delay: '3.5s', size: 'h-5 w-5' },
-  ];
+  // Cinematic eco environment layers
+  const cinematicLayers = {
+    background: [
+      { Icon: TreePine, position: 'top-[15%] left-[8%]', delay: '0s', size: 'h-12 w-12', animation: 'sway' },
+      { Icon: TreePine, position: 'top-[60%] right-[12%]', delay: '2s', size: 'h-16 w-16', animation: 'sway' },
+      { Icon: TreePine, position: 'top-[80%] left-[25%]', delay: '4s', size: 'h-10 w-10', animation: 'sway' },
+    ],
+    midground: [
+      { Icon: Sun, position: 'top-[12%] right-[20%]', delay: '1s', size: 'h-20 w-20', animation: 'pulse-glow' },
+      { Icon: Wind, position: 'top-[25%] left-[15%]', delay: '3s', size: 'h-8 w-8', animation: 'drift' },
+      { Icon: Wind, position: 'top-[45%] right-[30%]', delay: '5s', size: 'h-6 w-6', animation: 'drift' },
+      { Icon: Droplets, position: 'top-[35%] left-[40%]', delay: '2.5s', size: 'h-6 w-6', animation: 'float-up' },
+    ],
+    foreground: [
+      { Icon: Leaf, position: 'top-[20%] left-[12%]', delay: '0.5s', size: 'h-8 w-8', animation: 'spiral' },
+      { Icon: Leaf, position: 'top-[50%] right-[18%]', delay: '3.5s', size: 'h-6 w-6', animation: 'spiral' },
+      { Icon: Recycle, position: 'top-[70%] left-[35%]', delay: '1.5s', size: 'h-8 w-8', animation: 'rotate-slow' },
+      { Icon: Coffee, position: 'top-[30%] left-[28%]', delay: '4.5s', size: 'h-7 w-7', animation: 'bounce-subtle' },
+      { Icon: ShoppingBag, position: 'top-[65%] right-[35%]', delay: '2s', size: 'h-7 w-7', animation: 'swing' },
+      { Icon: Utensils, position: 'top-[40%] right-[8%]', delay: '6s', size: 'h-6 w-6', animation: 'wiggle' },
+    ]
+  };
 
   const kpis = [
     { icon: TrendingUp, value: '600+', label: 'Products at launch' },
@@ -46,26 +55,77 @@ const Index = () => {
       <section 
         className="relative py-24 bg-gradient-to-br from-leaf-green/90 to-earth-brown/80 overflow-hidden"
       >
-        {/* Eco Doodle Background */}
-        <div className="absolute inset-0 pointer-events-none">
-          {ecoDoodles.map((doodle, index) => {
-            const { Icon, position, delay, size } = doodle;
-            return (
-              <Icon
-                key={index}
-                className={`absolute ${position} ${size} text-white/10 animate-[float_6s_ease-in-out_infinite] opacity-60`}
-                style={{ 
-                  animationDelay: delay,
-                  transform: 'rotate(-15deg)'
+        {/* Cinematic Eco Environment */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Background Layer - Large Environmental Elements */}
+          <div className="absolute inset-0 opacity-[0.08]">
+            {cinematicLayers.background.map((element, index) => {
+              const { Icon, position, delay, size, animation } = element;
+              return (
+                <Icon
+                  key={`bg-${index}`}
+                  className={`absolute ${position} ${size} text-white animate-${animation}`}
+                  style={{ 
+                    animationDelay: delay,
+                    filter: 'blur(0.5px)'
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* Midground Layer - Medium Elements */}
+          <div className="absolute inset-0 opacity-[0.12]">
+            {cinematicLayers.midground.map((element, index) => {
+              const { Icon, position, delay, size, animation } = element;
+              return (
+                <Icon
+                  key={`mg-${index}`}
+                  className={`absolute ${position} ${size} text-white animate-${animation}`}
+                  style={{ 
+                    animationDelay: delay,
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* Foreground Layer - Active Elements */}
+          <div className="absolute inset-0 opacity-[0.15]">
+            {cinematicLayers.foreground.map((element, index) => {
+              const { Icon, position, delay, size, animation } = element;
+              return (
+                <Icon
+                  key={`fg-${index}`}
+                  className={`absolute ${position} ${size} text-white animate-${animation}`}
+                  style={{ 
+                    animationDelay: delay,
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* Atmospheric Particles */}
+          <div className="absolute inset-0">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={`particle-${i}`}
+                className="absolute w-1 h-1 bg-white/10 rounded-full animate-float-particles"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 10}s`,
+                  animationDuration: `${8 + Math.random() * 4}s`
                 }}
               />
-            );
-          })}
-          
-          {/* Additional scattered elements */}
-          <div className="absolute top-1/4 right-[8%] w-12 h-12 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute top-3/4 left-[12%] w-8 h-8 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '3s' }} />
-          <div className="absolute top-1/2 right-[5%] w-6 h-6 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '2s' }} />
+            ))}
+          </div>
+
+          {/* Gentle Light Rays */}
+          <div className="absolute top-0 left-1/4 w-px h-32 bg-gradient-to-b from-white/5 to-transparent animate-shimmer" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-0 right-1/3 w-px h-40 bg-gradient-to-b from-white/5 to-transparent animate-shimmer" style={{ animationDelay: '5s' }} />
+          <div className="absolute top-0 left-2/3 w-px h-24 bg-gradient-to-b from-white/5 to-transparent animate-shimmer" style={{ animationDelay: '8s' }} />
         </div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
