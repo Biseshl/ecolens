@@ -88,7 +88,7 @@ export const useLeafPoints = () => {
     });
 
     // Set up real-time subscription for leaf points
-    const channel = supabase
+    const profileChannel = supabase
       .channel('profile-changes')
       .on(
         'postgres_changes',
@@ -105,9 +105,29 @@ export const useLeafPoints = () => {
       )
       .subscribe();
 
+    // Set up real-time subscription for transaction changes
+    const transactionChannel = supabase
+      .channel('transaction-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'leaf_point_transactions'
+        },
+        (payload) => {
+          if (payload.new && user && payload.new.user_id === user.id) {
+            // Add new transaction to the beginning of the list
+            setTransactions(prev => [payload.new as LeafPointTransaction, ...prev]);
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       subscription.unsubscribe();
-      supabase.removeChannel(channel);
+      supabase.removeChannel(profileChannel);
+      supabase.removeChannel(transactionChannel);
     };
   }, [user?.id]);
 
