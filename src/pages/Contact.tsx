@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import MapLibreMap from '@/components/MapLibreMap';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -134,17 +135,8 @@ const Contact = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="aspect-video rounded-lg overflow-hidden bg-muted">
-                  <iframe
-                    src="https://www.google.com/maps/embed/v1/search?q=refill+store+melbourne"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Refill stores in Melbourne"
-                  />
+                <div className="rounded-lg overflow-hidden bg-muted">
+                  <MapLibreMap />
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   Discover local refill stores to reduce packaging waste and support circular economy
