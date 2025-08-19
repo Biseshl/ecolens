@@ -65,16 +65,21 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-2">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActiveLink(item.href) ? 'text-primary' : 'text-muted-foreground'
+                className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 ease-in-out rounded-full ${
+                  isActiveLink(item.href) 
+                    ? 'text-primary-foreground bg-primary shadow-lg scale-105' 
+                    : 'text-muted-foreground hover:text-primary hover:bg-primary/10 hover:scale-105'
                 }`}
               >
-                {item.name}
+                <span className="relative z-10">{item.name}</span>
+                {isActiveLink(item.href) && (
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-primary-light animate-pulse" />
+                )}
               </Link>
             ))}
           </nav>
@@ -144,12 +149,17 @@ const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`block px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${
-                    isActiveLink(item.href) ? 'text-primary' : 'text-muted-foreground'
+                  className={`relative block mx-3 px-4 py-3 text-sm font-medium transition-all duration-300 ease-in-out rounded-full ${
+                    isActiveLink(item.href) 
+                      ? 'text-primary-foreground bg-primary shadow-lg' 
+                      : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {item.name}
+                  <span className="relative z-10">{item.name}</span>
+                  {isActiveLink(item.href) && (
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-primary-light animate-pulse" />
+                  )}
                 </Link>
               ))}
               
