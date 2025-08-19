@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,221 +21,178 @@ export const useLeafPoints = () => {
   const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
 
+  // Fetch user data from database
+  const fetchUserData = useCallback(async (userId: string) => {
+    try {
+      // Fetch profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('leaf_points')
+        .eq('id', userId)
+        .single();
+
+      if (profile) {
+        setLeafPoints(profile.leaf_points || 0);
+      }
+
+      // Fetch transaction history
+      const { data: transactionData } = await supabase
+        .from('leaf_point_transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (transactionData) {
+        setTransactions(transactionData);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }, []);
+
+  // Initialize data on mount
   useEffect(() => {
-    // Get current user and set up auth state listener
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
-      if (user) {
-        // Fetch user's leaf points from database
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('leaf_points')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        if (profile) {
-          setLeafPoints(profile.leaf_points);
-        }
-        
-        // Fetch transaction history for authenticated users
-        await getTransactionHistory(user);
+    const initializeData = async () => {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      setUser(currentUser);
+
+      if (currentUser) {
+        await fetchUserData(currentUser.id);
       } else {
-        // If not authenticated, fall back to localStorage
+        // For non-authenticated users, use localStorage
         const storedPoints = localStorage.getItem(LEAF_POINTS_KEY);
         if (storedPoints) {
           setLeafPoints(parseInt(storedPoints, 10));
         }
-        setTransactions([]);
       }
-      
-      // Load saved items from localStorage regardless of auth status
+
+      // Load saved items from localStorage
       const storedItems = localStorage.getItem(SAVED_ITEMS_KEY);
       if (storedItems) {
         setSavedItems(new Set(JSON.parse(storedItems)));
       }
     };
 
-    getUser();
+    initializeData();
+  }, [fetchUserData]);
 
-    // Listen for auth changes
+  // Listen for auth state changes
+  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user || null);
       
       if (session?.user) {
-        // Fetch user's leaf points when they sign in
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('leaf_points')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        
-        if (profile) {
-          setLeafPoints(profile.leaf_points);
-        }
-        
-        // Fetch transaction history for newly signed in users
-        await getTransactionHistory(session.user);
+        await fetchUserData(session.user.id);
       } else {
-        // Fall back to localStorage when signed out
-        const storedPoints = localStorage.getItem(LEAF_POINTS_KEY);
-        if (storedPoints) {
-          setLeafPoints(parseInt(storedPoints, 10));
-        }
+        // User logged out, clear data
+        setLeafPoints(0);
         setTransactions([]);
       }
     });
 
-    // Set up real-time subscriptions only if user is authenticated
-    let profileChannel: any = null;
-    let transactionChannel: any = null;
+    return () => subscription.unsubscribe();
+  }, [fetchUserData]);
 
-    if (user?.id) {
-      const currentUserId = user.id;
-      
-      // Set up real-time subscription for leaf points
-      profileChannel = supabase
-        .channel(`profile-changes-${currentUserId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'profiles'
-          },
-          (payload) => {
-            console.log('Profile update received:', payload);
-            if (payload.new && payload.new.id === currentUserId) {
-              console.log('Updating leaf points to:', payload.new.leaf_points);
-              setLeafPoints(payload.new.leaf_points);
-            }
-          }
-        )
-        .subscribe();
+  // Real-time subscriptions for authenticated users
+  useEffect(() => {
+    if (!user) return;
 
-      // Set up real-time subscription for transaction changes
-      transactionChannel = supabase
-        .channel(`transaction-changes-${currentUserId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'leaf_point_transactions'
-          },
-          (payload) => {
-            console.log('Transaction insert received:', payload);
-            if (payload.new && payload.new.user_id === currentUserId) {
-              console.log('Adding new transaction:', payload.new);
-              // Add new transaction to the beginning of the list
-              setTransactions(prev => [payload.new as LeafPointTransaction, ...prev]);
-            }
+    const channel = supabase
+      .channel(`user-updates-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`
+        },
+        (payload) => {
+          if (payload.new && typeof payload.new.leaf_points === 'number') {
+            setLeafPoints(payload.new.leaf_points);
           }
-        )
-        .subscribe();
-    }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'leaf_point_transactions',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          if (payload.new) {
+            setTransactions(prev => [payload.new as LeafPointTransaction, ...prev]);
+          }
+        }
+      )
+      .subscribe();
 
     return () => {
-      subscription.unsubscribe();
-      if (profileChannel) {
-        supabase.removeChannel(profileChannel);
-      }
-      if (transactionChannel) {
-        supabase.removeChannel(transactionChannel);
-      }
+      supabase.removeChannel(channel);
     };
-  }, [user?.id]);
-
-  const getTransactionHistory = async (currentUser?: any) => {
-    const userToQuery = currentUser || user;
-    if (userToQuery) {
-      const { data, error } = await supabase
-        .from('leaf_point_transactions')
-        .select('*')
-        .eq('user_id', userToQuery.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (!error && data) {
-        setTransactions(data);
-      }
-    }
-  };
+  }, [user]);
 
   const addLeafPoint = async (actionType: string = 'manual', itemId?: string, description?: string) => {
-    console.log('=== ADD LEAF POINT DEBUG ===');
-    console.log('Action:', actionType, 'Item:', itemId);
-    console.log('User authenticated?', !!user);
-    console.log('Current leaf points before:', leafPoints);
-    
     if (user) {
-      console.log('User is authenticated, saving to database...');
-      // First create the transaction record
-      const { error: transactionError } = await supabase
-        .from('leaf_point_transactions')
-        .insert({
-          user_id: user.id,
-          points_earned: 1,
-          action_type: actionType,
-          item_id: itemId,
-          description: description || `Earned 1 point for ${actionType}`
-        });
+      try {
+        // Create transaction record
+        const { error: transactionError } = await supabase
+          .from('leaf_point_transactions')
+          .insert({
+            user_id: user.id,
+            points_earned: 1,
+            action_type: actionType,
+            item_id: itemId,
+            description: description || `Earned 1 point for ${actionType}`
+          });
 
-      if (transactionError) {
-        console.error('Error creating transaction:', transactionError);
-        toast({
-          title: "Error",
-          description: "Failed to save transaction. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      console.log('Transaction created successfully');
+        if (transactionError) {
+          throw transactionError;
+        }
 
-      // Get the current leaf points from database to ensure accuracy
-      const { data: currentProfile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('leaf_points')
-        .eq('id', user.id)
-        .single();
+        // Get current profile and update points
+        const { data: currentProfile, error: fetchError } = await supabase
+          .from('profiles')
+          .select('leaf_points')
+          .eq('id', user.id)
+          .single();
 
-      if (fetchError) {
-        console.error('Error fetching current leaf points:', fetchError);
-        return;
-      }
-      
-      console.log('Current profile leaf points from DB:', currentProfile.leaf_points);
+        if (fetchError) {
+          throw fetchError;
+        }
 
-      // Update with the correct current total
-      const newTotal = currentProfile.leaf_points + 1;
-      const { error } = await supabase
-        .from('profiles')
-        .update({ leaf_points: newTotal })
-        .eq('id', user.id);
+        const newTotal = currentProfile.leaf_points + 1;
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ leaf_points: newTotal })
+          .eq('id', user.id);
 
-      if (error) {
-        console.error('Error updating leaf points:', error);
-        toast({
-          title: "Error",
-          description: "Failed to update leaf points. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        console.log('Successfully updated leaf points in database to:', newTotal);
-        console.log('Updating local state to:', newTotal);
-        setLeafPoints(newTotal); // Explicitly update local state
+        if (updateError) {
+          throw updateError;
+        }
+
+        // Update local state immediately
+        setLeafPoints(newTotal);
+        
         toast({
           title: "Leaf point earned! 🌱",
           description: description || "You've earned a leaf point for this eco-friendly action!",
         });
+
+      } catch (error) {
+        console.error('Error adding leaf point:', error);
+        toast({
+          title: "Error",
+          description: "Failed to add leaf point. Please try again.",
+          variant: "destructive",
+        });
       }
     } else {
       // Fall back to localStorage for non-authenticated users
-      console.log('User not authenticated, using localStorage');
       const newPoints = leafPoints + 1;
-      console.log('Updating local points from', leafPoints, 'to', newPoints);
       setLeafPoints(newPoints);
       localStorage.setItem(LEAF_POINTS_KEY, newPoints.toString());
       toast({
@@ -246,26 +203,17 @@ export const useLeafPoints = () => {
   };
 
   const saveItem = (itemId: string) => {
-    console.log('=== SAVE ITEM DEBUG ===');
-    console.log('User authenticated?', !!user);
-    console.log('User ID:', user?.id);
-    console.log('Item ID:', itemId);
-    console.log('Already saved?', savedItems.has(itemId));
-    console.log('Current savedItems:', Array.from(savedItems));
-    
     if (!savedItems.has(itemId)) {
       const newSavedItems = new Set(savedItems);
       newSavedItems.add(itemId);
       setSavedItems(newSavedItems);
       localStorage.setItem(SAVED_ITEMS_KEY, JSON.stringify(Array.from(newSavedItems)));
       
-      console.log('Item saved to localStorage, calling addLeafPoint');
+      // Add leaf point for saving item
       addLeafPoint('item_saved', itemId, 'Saved item to wishlist');
       return true;
-    } else {
-      console.log('Item already saved');
-      return false;
     }
+    return false;
   };
 
   const unsaveItem = (itemId: string) => {
@@ -281,6 +229,13 @@ export const useLeafPoints = () => {
 
   const isItemSaved = (itemId: string) => savedItems.has(itemId);
 
+  // Manual refresh function for debugging
+  const refreshData = useCallback(async () => {
+    if (user) {
+      await fetchUserData(user.id);
+    }
+  }, [user, fetchUserData]);
+
   return {
     leafPoints,
     savedItems: Array.from(savedItems),
@@ -289,6 +244,6 @@ export const useLeafPoints = () => {
     unsaveItem,
     isItemSaved,
     addLeafPoint,
-    getTransactionHistory
+    refreshData
   };
 };
