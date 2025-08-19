@@ -143,3 +143,13 @@
     min-height: 100vh;
   }
 }
+
+/* Floating Animation for Eco Doodles */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(-15deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(-15deg);
+  }
+}

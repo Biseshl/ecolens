@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Leaf, Star, TrendingUp } from 'lucide-react';
+import { Search, Leaf, Star, TrendingUp, Recycle, TreePine, Droplets, Sun, Wind, Coffee, Utensils, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,6 +12,20 @@ const Index = () => {
   const handleSearch = () => {
     window.location.href = `/catalogue?search=${encodeURIComponent(searchTerm)}`;
   };
+
+  // Eco doodle elements for background
+  const ecoDoodles = [
+    { Icon: Leaf, position: 'top-16 left-[10%]', delay: '0s', size: 'h-8 w-8' },
+    { Icon: Recycle, position: 'top-32 right-[15%]', delay: '2s', size: 'h-6 w-6' },
+    { Icon: TreePine, position: 'top-48 left-[20%]', delay: '4s', size: 'h-10 w-10' },
+    { Icon: Sun, position: 'top-20 right-[30%]', delay: '1s', size: 'h-7 w-7' },
+    { Icon: Wind, position: 'top-40 left-[5%]', delay: '3s', size: 'h-6 w-6' },
+    { Icon: Droplets, position: 'top-60 right-[10%]', delay: '5s', size: 'h-5 w-5' },
+    { Icon: Coffee, position: 'top-24 left-[25%]', delay: '2.5s', size: 'h-6 w-6' },
+    { Icon: Utensils, position: 'top-52 right-[25%]', delay: '1.5s', size: 'h-7 w-7' },
+    { Icon: ShoppingBag, position: 'top-36 left-[15%]', delay: '4.5s', size: 'h-6 w-6' },
+    { Icon: Leaf, position: 'top-64 left-[30%]', delay: '3.5s', size: 'h-5 w-5' },
+  ];
 
   const kpis = [
     { icon: TrendingUp, value: '600+', label: 'Products at launch' },
@@ -30,12 +44,29 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section 
-        className="relative py-24 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('/src/assets/hero-background.jpg'), linear-gradient(135deg, hsl(120 60% 25% / 0.9), hsl(120 70% 40% / 0.8))`,
-          backgroundBlendMode: 'overlay'
-        }}
+        className="relative py-24 bg-gradient-to-br from-leaf-green/90 to-earth-brown/80 overflow-hidden"
       >
+        {/* Eco Doodle Background */}
+        <div className="absolute inset-0 pointer-events-none">
+          {ecoDoodles.map((doodle, index) => {
+            const { Icon, position, delay, size } = doodle;
+            return (
+              <Icon
+                key={index}
+                className={`absolute ${position} ${size} text-white/10 animate-[float_6s_ease-in-out_infinite] opacity-60`}
+                style={{ 
+                  animationDelay: delay,
+                  transform: 'rotate(-15deg)'
+                }}
+              />
+            );
+          })}
+          
+          {/* Additional scattered elements */}
+          <div className="absolute top-1/4 right-[8%] w-12 h-12 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-3/4 left-[12%] w-8 h-8 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '3s' }} />
+          <div className="absolute top-1/2 right-[5%] w-6 h-6 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
