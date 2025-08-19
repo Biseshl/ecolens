@@ -6,13 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Navigate } from 'react-router-dom';
-import { Leaf, Mail, Lock } from 'lucide-react';
+import { Leaf, Mail, Lock, AlertTriangle } from 'lucide-react';
+import { validateEmail, validatePassword, sanitizeInput, authRateLimiter } from '@/lib/security';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -38,12 +44,47 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setEmailError('');
+    setPasswordError('');
+    
+    // Check rate limiting
+    const clientId = `${email || 'unknown'}_${Date.now().toString().slice(-8)}`;
+    if (authRateLimiter.isRateLimited(clientId)) {
+      const remaining = authRateLimiter.getRemainingTime(clientId);
+      setIsRateLimited(true);
+      setRemainingTime(remaining);
+      toast({
+        title: "Too many attempts",
+        description: `Please wait ${remaining} minutes before trying again.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate inputs
+    const sanitizedEmail = sanitizeInput(email);
+    const emailValidation = validateEmail(sanitizedEmail);
+    const passwordValidation = validatePassword(password);
+    
+    if (!emailValidation.valid) {
+      setEmailError(emailValidation.message || '');
+      return;
+    }
+    
+    if (!passwordValidation.valid) {
+      setPasswordError(passwordValidation.message || '');
+      return;
+    }
+    
     setLoading(true);
+    authRateLimiter.recordAttempt(clientId);
 
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
-      email,
+      email: sanitizedEmail,
       password,
       options: {
         emailRedirectTo: redirectUrl
@@ -67,10 +108,44 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setEmailError('');
+    setPasswordError('');
+    
+    // Check rate limiting
+    const clientId = `${email || 'unknown'}_${Date.now().toString().slice(-8)}`;
+    if (authRateLimiter.isRateLimited(clientId)) {
+      const remaining = authRateLimiter.getRemainingTime(clientId);
+      setIsRateLimited(true);
+      setRemainingTime(remaining);
+      toast({
+        title: "Too many attempts",
+        description: `Please wait ${remaining} minutes before trying again.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate inputs
+    const sanitizedEmail = sanitizeInput(email);
+    const emailValidation = validateEmail(sanitizedEmail);
+    
+    if (!emailValidation.valid) {
+      setEmailError(emailValidation.message || '');
+      return;
+    }
+    
+    if (!password) {
+      setPasswordError('Password is required');
+      return;
+    }
+    
     setLoading(true);
+    authRateLimiter.recordAttempt(clientId);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: sanitizedEmail,
       password,
     });
 
@@ -100,6 +175,15 @@ const Auth = () => {
           <CardTitle>Join the sustainable community</CardTitle>
         </CardHeader>
         <CardContent>
+          {isRateLimited && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Too many login attempts. Please wait {remainingTime} minutes before trying again.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -120,9 +204,13 @@ const Auth = () => {
                       placeholder="your.email@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
+                      className={`pl-10 ${emailError ? 'border-red-500' : ''}`}
                       required
+                      maxLength={255}
                     />
+                    {emailError && (
+                      <p className="text-sm text-red-500 mt-1">{emailError}</p>
+                    )}
                   </div>
                 </div>
                 
@@ -138,13 +226,17 @@ const Auth = () => {
                       placeholder="Your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
+                      className={`pl-10 ${passwordError ? 'border-red-500' : ''}`}
                       required
+                      maxLength={128}
                     />
+                    {passwordError && (
+                      <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+                    )}
                   </div>
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || isRateLimited}>
                   {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </form>
@@ -164,9 +256,13 @@ const Auth = () => {
                       placeholder="your.email@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
+                      className={`pl-10 ${emailError ? 'border-red-500' : ''}`}
                       required
+                      maxLength={255}
                     />
+                    {emailError && (
+                      <p className="text-sm text-red-500 mt-1">{emailError}</p>
+                    )}
                   </div>
                 </div>
                 
@@ -179,17 +275,21 @@ const Auth = () => {
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Create a password"
+                      placeholder="Create a password (8+ chars, uppercase, lowercase, number)"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
+                      className={`pl-10 ${passwordError ? 'border-red-500' : ''}`}
                       required
-                      minLength={6}
+                      minLength={8}
+                      maxLength={128}
                     />
+                    {passwordError && (
+                      <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+                    )}
                   </div>
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || isRateLimited}>
                   {loading ? 'Creating account...' : 'Create Account'}
                 </Button>
                 
