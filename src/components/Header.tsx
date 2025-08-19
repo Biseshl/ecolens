@@ -1,13 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Leaf } from 'lucide-react';
+import { Menu, X, Leaf, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLeafPoints } from '@/hooks/useLeafPoints';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const location = useLocation();
   const { leafPoints } = useLeafPoints();
+
+  useEffect(() => {
+    // Get current user
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   const navigation = [
     { name: 'Catalogue', href: '/catalogue' },
@@ -51,7 +79,7 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Leaf Points Counter */}
+          {/* Leaf Points Counter & Auth */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1 rounded-full bg-leaf-green/10 px-3 py-1">
               <Leaf className="h-4 w-4 text-leaf-green" />
@@ -59,6 +87,32 @@ const Header = () => {
                 Leaf-points: {leafPoints}
               </span>
             </div>
+
+            {/* Auth Controls */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hidden md:flex">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="text-sm">
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="hidden md:flex">
+                  Sign In
+                </Button>
+              </Link>
+            )}
 
             {/* Mobile menu button */}
             <Button
@@ -92,6 +146,30 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Mobile Auth */}
+              <div className="px-3 py-2">
+                {user ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleSignOut}
+                      className="w-full"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         )}
