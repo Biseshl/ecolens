@@ -164,9 +164,13 @@ export const useLeafPoints = () => {
   };
 
   const addLeafPoint = async (actionType: string = 'manual', itemId?: string, description?: string) => {
-    console.log('Adding leaf point for action:', actionType, 'item:', itemId);
+    console.log('=== ADD LEAF POINT DEBUG ===');
+    console.log('Action:', actionType, 'Item:', itemId);
+    console.log('User authenticated?', !!user);
+    console.log('Current leaf points before:', leafPoints);
     
     if (user) {
+      console.log('User is authenticated, saving to database...');
       // First create the transaction record
       const { error: transactionError } = await supabase
         .from('leaf_point_transactions')
@@ -187,6 +191,8 @@ export const useLeafPoints = () => {
         });
         return;
       }
+      
+      console.log('Transaction created successfully');
 
       // Get the current leaf points from database to ensure accuracy
       const { data: currentProfile, error: fetchError } = await supabase
@@ -199,6 +205,8 @@ export const useLeafPoints = () => {
         console.error('Error fetching current leaf points:', fetchError);
         return;
       }
+      
+      console.log('Current profile leaf points from DB:', currentProfile.leaf_points);
 
       // Update with the correct current total
       const newTotal = currentProfile.leaf_points + 1;
@@ -215,7 +223,9 @@ export const useLeafPoints = () => {
           variant: "destructive",
         });
       } else {
-        console.log('Successfully updated leaf points to:', newTotal);
+        console.log('Successfully updated leaf points in database to:', newTotal);
+        console.log('Updating local state to:', newTotal);
+        setLeafPoints(newTotal); // Explicitly update local state
         toast({
           title: "Leaf point earned! 🌱",
           description: description || "You've earned a leaf point for this eco-friendly action!",
@@ -223,7 +233,9 @@ export const useLeafPoints = () => {
       }
     } else {
       // Fall back to localStorage for non-authenticated users
+      console.log('User not authenticated, using localStorage');
       const newPoints = leafPoints + 1;
+      console.log('Updating local points from', leafPoints, 'to', newPoints);
       setLeafPoints(newPoints);
       localStorage.setItem(LEAF_POINTS_KEY, newPoints.toString());
       toast({
