@@ -87,47 +87,63 @@ export const useLeafPoints = () => {
       }
     });
 
-    // Set up real-time subscription for leaf points
-    const profileChannel = supabase
-      .channel('profile-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'profiles'
-        },
-        (payload) => {
-          if (payload.new && user && payload.new.id === user.id) {
-            setLeafPoints(payload.new.leaf_points);
-          }
-        }
-      )
-      .subscribe();
+    // Set up real-time subscriptions only if user is authenticated
+    let profileChannel: any = null;
+    let transactionChannel: any = null;
 
-    // Set up real-time subscription for transaction changes
-    const transactionChannel = supabase
-      .channel('transaction-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'leaf_point_transactions'
-        },
-        (payload) => {
-          if (payload.new && user && payload.new.user_id === user.id) {
-            // Add new transaction to the beginning of the list
-            setTransactions(prev => [payload.new as LeafPointTransaction, ...prev]);
+    if (user?.id) {
+      const currentUserId = user.id;
+      
+      // Set up real-time subscription for leaf points
+      profileChannel = supabase
+        .channel(`profile-changes-${currentUserId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles'
+          },
+          (payload) => {
+            console.log('Profile update received:', payload);
+            if (payload.new && payload.new.id === currentUserId) {
+              console.log('Updating leaf points to:', payload.new.leaf_points);
+              setLeafPoints(payload.new.leaf_points);
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+
+      // Set up real-time subscription for transaction changes
+      transactionChannel = supabase
+        .channel(`transaction-changes-${currentUserId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'leaf_point_transactions'
+          },
+          (payload) => {
+            console.log('Transaction insert received:', payload);
+            if (payload.new && payload.new.user_id === currentUserId) {
+              console.log('Adding new transaction:', payload.new);
+              // Add new transaction to the beginning of the list
+              setTransactions(prev => [payload.new as LeafPointTransaction, ...prev]);
+            }
+          }
+        )
+        .subscribe();
+    }
 
     return () => {
       subscription.unsubscribe();
-      supabase.removeChannel(profileChannel);
-      supabase.removeChannel(transactionChannel);
+      if (profileChannel) {
+        supabase.removeChannel(profileChannel);
+      }
+      if (transactionChannel) {
+        supabase.removeChannel(transactionChannel);
+      }
     };
   }, [user?.id]);
 
