@@ -164,6 +164,8 @@ export const useLeafPoints = () => {
   };
 
   const addLeafPoint = async (actionType: string = 'manual', itemId?: string, description?: string) => {
+    console.log('Adding leaf point for action:', actionType, 'item:', itemId);
+    
     if (user) {
       // First create the transaction record
       const { error: transactionError } = await supabase
@@ -176,28 +178,48 @@ export const useLeafPoints = () => {
           description: description || `Earned 1 point for ${actionType}`
         });
 
-      if (!transactionError) {
-        // Then update the total points
-        const { error } = await supabase
-          .from('profiles')
-          .update({ leaf_points: leafPoints + 1 })
-          .eq('id', user.id);
+      if (transactionError) {
+        console.error('Error creating transaction:', transactionError);
+        toast({
+          title: "Error",
+          description: "Failed to save transaction. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-        if (error) {
-          console.error('Error updating leaf points:', error);
-          toast({
-            title: "Error",
-            description: "Failed to update leaf points. Please try again.",
-            variant: "destructive",
-          });
-        } else {
-          // Refresh transaction history
-          await getTransactionHistory();
-          toast({
-            title: "Leaf point earned! 🌱",
-            description: description || "You've earned a leaf point for this eco-friendly action!",
-          });
-        }
+      // Get the current leaf points from database to ensure accuracy
+      const { data: currentProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('leaf_points')
+        .eq('id', user.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching current leaf points:', fetchError);
+        return;
+      }
+
+      // Update with the correct current total
+      const newTotal = currentProfile.leaf_points + 1;
+      const { error } = await supabase
+        .from('profiles')
+        .update({ leaf_points: newTotal })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error updating leaf points:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update leaf points. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        console.log('Successfully updated leaf points to:', newTotal);
+        toast({
+          title: "Leaf point earned! 🌱",
+          description: description || "You've earned a leaf point for this eco-friendly action!",
+        });
       }
     } else {
       // Fall back to localStorage for non-authenticated users
@@ -212,15 +234,21 @@ export const useLeafPoints = () => {
   };
 
   const saveItem = (itemId: string) => {
+    console.log('Attempting to save item:', itemId, 'Already saved?', savedItems.has(itemId));
+    
     if (!savedItems.has(itemId)) {
       const newSavedItems = new Set(savedItems);
       newSavedItems.add(itemId);
       setSavedItems(newSavedItems);
       localStorage.setItem(SAVED_ITEMS_KEY, JSON.stringify(Array.from(newSavedItems)));
+      
+      console.log('Item saved successfully, adding leaf point');
       addLeafPoint('item_saved', itemId, 'Saved item to wishlist');
       return true;
+    } else {
+      console.log('Item already saved');
+      return false;
     }
-    return false;
   };
 
   const unsaveItem = (itemId: string) => {
